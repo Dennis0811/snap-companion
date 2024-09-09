@@ -24,7 +24,10 @@ const Table = ({ jsonData }: { jsonData: JsonType }) => {
       const playerName = player.PlayerInfo.Name;
       const pointsList = player.TimePeriodState.TimePeriodList;
 
-      // Only working on the latest entry of the leaderboard 
+      // TODO: new players have no entry at length - 2, so we don't want to show them in the last week's version at all
+      // if (pointsList.length - 2 < 0) return;
+
+      // Only working on a specific entry of the weekly leaderboard
       let cubePoints = pointsList[pointsList.length - 1].CubePoints;
       let bountyPoints = pointsList[pointsList.length - 1].BountyPoints;
 
