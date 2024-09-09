@@ -1,5 +1,12 @@
-import { ArrowUpDown, ChevronDown, ChevronUp, Search } from "lucide-react";
+import {
+  ArrowUpDown,
+  ChevronDown,
+  ChevronUp,
+  Download,
+  Search,
+} from "lucide-react";
 import { useState } from "react";
+import * as XLSX from "xlsx"; // Import the XLSX library
 import { JsonType, MemberType, SortedMember } from "../Types";
 
 const Table = ({ jsonData }: { jsonData: JsonType }) => {
@@ -7,12 +14,11 @@ const Table = ({ jsonData }: { jsonData: JsonType }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortColumn, setSortColumn] = useState<keyof SortedMember | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-  const [clickCount, setClickCount] = useState(0); // To track the number of clicks
+  const [clickCount, setClickCount] = useState(0);
 
   const data: JsonType = jsonData;
   const players: MemberType[] = data.ServerState.Members;
 
-  // First, assign the default idx based on sorting by totalPoints
   const playersWithIdx: SortedMember[] = players
     .map((player) => {
       const playerName = player.PlayerInfo.Name;
@@ -32,45 +38,38 @@ const Table = ({ jsonData }: { jsonData: JsonType }) => {
         totalPoints,
       };
     })
-    .sort((a, b) => b.totalPoints - a.totalPoints) // Sort by totalPoints descending initially
+    .sort((a, b) => b.totalPoints - a.totalPoints)
     .map((player, index) => ({
-      idx: index + 1, // Assign idx based on the initial totalPoints sort
+      idx: index + 1,
       ...player,
     }));
 
-  // Handle search query change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value.toLowerCase());
   };
 
-  // Handle sorting column click
   const handleSort = (column: keyof SortedMember) => {
     if (sortColumn === column) {
-      // Toggle sorting direction or reset to default if already sorted ascending
       if (sortDirection === "asc") {
         setSortDirection("desc");
       } else {
         setSortDirection("asc");
       }
 
-      // Update click count
       setClickCount((prevCount) => prevCount + 1);
 
-      // Reset to default after the third click
       if (clickCount === 2) {
-        setSortColumn(null); // Reset column sorting
-        setSortDirection("desc"); // Reset sorting direction to default
-        setClickCount(0); // Reset click count
+        setSortColumn(null);
+        setSortDirection("desc");
+        setClickCount(0);
       }
     } else {
-      // Set new column and sort descending by default
       setSortColumn(column);
       setSortDirection("desc");
-      setClickCount(1); // Reset click count for a new column
+      setClickCount(1);
     }
   };
 
-  // Get the appropriate icon for the sorting column
   const getSortIcon = (column: keyof SortedMember) => {
     if (sortColumn === column) {
       return sortDirection === "asc" ? (
@@ -82,7 +81,6 @@ const Table = ({ jsonData }: { jsonData: JsonType }) => {
     return <ArrowUpDown className="h-4 w-4" />;
   };
 
-  // Filter and sort the players based on the current sort settings
   const filteredPlayers = playersWithIdx
     .filter((player) => player.name.toLowerCase().includes(searchQuery))
     .sort((a, b) => {
@@ -102,9 +100,29 @@ const Table = ({ jsonData }: { jsonData: JsonType }) => {
       }
     });
 
+  const exportToExcel = () => {
+    const wsData = [
+      tableCols, // Headers
+      ...filteredPlayers.map((player) => [
+        player.idx,
+        player.name,
+        player.cubePoints,
+        player.bountyPoints,
+        player.totalPoints,
+      ]),
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(wsData); // Create sheet from data
+    const wb = XLSX.utils.book_new(); // Create a new workbook
+    XLSX.utils.book_append_sheet(wb, ws, "Alliance Leaderboard"); // Append the sheet
+
+    // Export as an Excel file
+    XLSX.writeFile(wb, "player_data.xlsx");
+  };
+
   return (
     <>
-      <div className="w-full max-w-4xl my-5 flex flex-row flex-nowrap items-center">
+      <div className="h-auto w-full max-w-4xl my-5 flex flex-row flex-nowrap items-center">
         <label className="input input-bordered flex items-center gap-2 w-full">
           <input
             type="text"
@@ -115,28 +133,38 @@ const Table = ({ jsonData }: { jsonData: JsonType }) => {
           />
           <Search className="w-4" />
         </label>
+
+        <button onClick={exportToExcel} className="ml-4 btn btn-primary">
+          <div
+            className="flex flex-col items-center justify-center px-2 py-2"
+            title="Download your Excel Leaderboard file."
+          >
+            <div>Export to Excel</div>
+            <Download />
+          </div>
+        </button>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-auto">
         <table className="table table-lg table-zebra table-pin-rows">
           <thead>
             <tr>
               {tableCols.map((col, index) => {
                 let columnKey: keyof SortedMember | null = null;
                 switch (col) {
-                  case "#":
-                    columnKey = null; // No sorting for the idx column
+                  case tableCols[0]:
+                    columnKey = null;
                     break;
-                  case "Player":
+                  case tableCols[1]:
                     columnKey = "name";
                     break;
-                  case "Cube Points":
+                  case tableCols[2]:
                     columnKey = "cubePoints";
                     break;
-                  case "Bounty Points":
+                  case tableCols[3]:
                     columnKey = "bountyPoints";
                     break;
-                  case "Total":
+                  case tableCols[4]:
                     columnKey = "totalPoints";
                     break;
                   default:
@@ -146,7 +174,7 @@ const Table = ({ jsonData }: { jsonData: JsonType }) => {
                 return (
                   <th key={index}>
                     <div
-                      className="cursor-pointer flex gap-x-5 flex-row"
+                      className="cursor-pointer flex gap-x-5 flex-row justify-center uppercase"
                       onClick={() => columnKey && handleSort(columnKey)}
                     >
                       {col} {columnKey && getSortIcon(columnKey)}
@@ -160,7 +188,7 @@ const Table = ({ jsonData }: { jsonData: JsonType }) => {
           <tbody>
             {filteredPlayers.map((player: SortedMember, index: number) => (
               <tr key={index}>
-                <td>{player.idx}</td> {/* Fixed idx based on totalPoints */}
+                <td>{player.idx}</td>
                 <td>{player.name}</td>
                 <td className="text-right">{player.cubePoints}</td>
                 <td className="text-right">{player.bountyPoints}</td>
