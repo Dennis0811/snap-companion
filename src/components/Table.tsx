@@ -23,6 +23,8 @@ const Table = ({ jsonData }: { jsonData: JsonType }) => {
     .map((player) => {
       const playerName = player.PlayerInfo.Name;
       const pointsList = player.TimePeriodState.TimePeriodList;
+
+      // Only working on the latest entry of the leaderboard 
       let cubePoints = pointsList[pointsList.length - 1].CubePoints;
       let bountyPoints = pointsList[pointsList.length - 1].BountyPoints;
 
