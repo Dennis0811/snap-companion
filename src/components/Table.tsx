@@ -1,15 +1,16 @@
-import {
-  ArrowUpDown,
-  ChevronDown,
-  ChevronUp,
-  Download,
-  Search,
-} from "lucide-react";
+import { ArrowUpDown, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
-import * as XLSX from "xlsx"; // Import the XLSX library
 import { JsonType, MemberType, SortedMember } from "../Types";
+import Exporter from "./Exporter";
+import Searchbar from "./Searchbar";
 
-const Table = ({ jsonData }: { jsonData: JsonType }) => {
+const Table = ({
+  jsonData,
+  activeTab,
+}: {
+  jsonData: JsonType;
+  activeTab: string;
+}) => {
   const tableCols = ["#", "Player", "Cube Points", "Bounty Points", "Total"];
   const [searchQuery, setSearchQuery] = useState("");
   const [sortColumn, setSortColumn] = useState<keyof SortedMember | null>(null);
@@ -20,20 +21,23 @@ const Table = ({ jsonData }: { jsonData: JsonType }) => {
   const players: MemberType[] = data.ServerState.Members;
 
   const playersWithIdx: SortedMember[] = players
+    .filter((player) =>
+      player.TimePeriodState.TimePeriodList.find(
+        (timePeriod) => timePeriod.Key === activeTab
+      )
+    )
     .map((player) => {
       const playerName = player.PlayerInfo.Name;
       const pointsList = player.TimePeriodState.TimePeriodList;
 
-      // TODO: new players have no entry at length - 2, so we don't want to show them in the last week's version at all
-      // if (pointsList.length - 2 < 0) return;
+      // Find the TimePeriod that matches the activeTab
+      const matchedTimePeriod = pointsList.find(
+        (timePeriod) => timePeriod.Key === activeTab
+      );
 
-      // Only working on a specific entry of the weekly leaderboard
-      let cubePoints = pointsList[pointsList.length - 1].CubePoints;
-      let bountyPoints = pointsList[pointsList.length - 1].BountyPoints;
-
-      if (isNaN(+cubePoints)) cubePoints = 0;
-      if (isNaN(+bountyPoints)) bountyPoints = 0;
-
+      // If there's no matching time period, default to 0 points (0 point players won't be included anyway, due to the filter applied earlier)
+      const cubePoints = matchedTimePeriod?.CubePoints ?? 0;
+      const bountyPoints = matchedTimePeriod?.BountyPoints ?? 0;
       const totalPoints = cubePoints + bountyPoints;
 
       return {
@@ -49,21 +53,13 @@ const Table = ({ jsonData }: { jsonData: JsonType }) => {
       ...player,
     }));
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value.toLowerCase());
-  };
-
   const handleSort = (column: keyof SortedMember) => {
     if (sortColumn === column) {
-      if (sortDirection === "asc") {
-        setSortDirection("desc");
-      } else {
-        setSortDirection("asc");
-      }
-
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
       setClickCount((prevCount) => prevCount + 1);
 
       if (clickCount === 2) {
+        // Reset to default sorting
         setSortColumn(null);
         setSortDirection("desc");
         setClickCount(0);
@@ -105,49 +101,11 @@ const Table = ({ jsonData }: { jsonData: JsonType }) => {
       }
     });
 
-  const exportToExcel = () => {
-    const wsData = [
-      tableCols, // Headers
-      ...filteredPlayers.map((player) => [
-        player.idx,
-        player.name,
-        player.cubePoints,
-        player.bountyPoints,
-        player.totalPoints,
-      ]),
-    ];
-
-    const ws = XLSX.utils.aoa_to_sheet(wsData); // Create sheet from data
-    const wb = XLSX.utils.book_new(); // Create a new workbook
-    XLSX.utils.book_append_sheet(wb, ws, "Alliance Leaderboard"); // Append the sheet
-
-    // Export as an Excel file
-    XLSX.writeFile(wb, "player_data.xlsx");
-  };
-
   return (
     <>
       <div className="h-auto w-full max-w-4xl my-5 flex flex-row flex-nowrap items-center">
-        <label className="input input-bordered flex items-center gap-2 w-full">
-          <input
-            type="text"
-            className="grow"
-            placeholder="Search"
-            value={searchQuery}
-            onChange={handleSearchChange}
-          />
-          <Search className="w-4" />
-        </label>
-
-        <button onClick={exportToExcel} className="ml-4 btn btn-primary">
-          <div
-            className="flex flex-col items-center justify-center px-2 py-2"
-            title="Download your Excel Leaderboard file."
-          >
-            <div>Export to Excel</div>
-            <Download />
-          </div>
-        </button>
+        <Searchbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+        <Exporter tableCols={tableCols} filteredPlayers={filteredPlayers} />
       </div>
 
       <div className="overflow-auto">
