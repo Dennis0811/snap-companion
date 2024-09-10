@@ -26,3 +26,9 @@ export interface SortedMember {
   bountyPoints: number;
   totalPoints: number;
 }
+
+export interface SupportMe {
+  name: string;
+  link: string;
+  image: string;
+}

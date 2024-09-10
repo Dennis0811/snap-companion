@@ -5,9 +5,11 @@ import { SortedMember } from "../Types";
 const Exporter = ({
   tableCols,
   filteredPlayers,
+  activeTab,
 }: {
   tableCols: string[];
   filteredPlayers: SortedMember[];
+  activeTab: string;
 }) => {
   const exportToExcel = () => {
     const wsData = [
@@ -26,15 +28,15 @@ const Exporter = ({
     XLSX.utils.book_append_sheet(wb, ws, "Alliance Leaderboard"); // Append the sheet
 
     // Export as an Excel file
-    XLSX.writeFile(wb, "player_data.xlsx");
+    XLSX.writeFile(wb, `${activeTab}_player_data.xlsx`);
   };
+
   return (
     <>
-      {" "}
-      <button onClick={exportToExcel} className="ml-4 btn btn-primary">
+      <button onClick={exportToExcel} className="mx-4 btn btn-primary">
         <div
           className="flex flex-col items-center justify-center px-2 py-2"
-          title="Download your Excel Leaderboard file."
+          title="Download your Leaderboard file."
         >
           <div>Export to Excel</div>
           <Download />

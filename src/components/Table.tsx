@@ -1,17 +1,20 @@
 import { ArrowUpDown, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
-import { JsonType, MemberType, SortedMember } from "../Types";
+import { JsonType, MemberType, SortedMember, SupportMe } from "../Types";
 import Exporter from "./Exporter";
 import Searchbar from "./Searchbar";
 
 const Table = ({
   jsonData,
   activeTab,
+  supportMeArray,
 }: {
   jsonData: JsonType;
   activeTab: string;
+  supportMeArray: SupportMe[];
 }) => {
   const tableCols = ["#", "Player", "Cube Points", "Bounty Points", "Total"];
+
   const [searchQuery, setSearchQuery] = useState("");
   const [sortColumn, setSortColumn] = useState<keyof SortedMember | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
@@ -105,7 +108,18 @@ const Table = ({
     <>
       <div className="h-auto w-full max-w-4xl my-5 flex flex-row flex-nowrap items-center">
         <Searchbar searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-        <Exporter tableCols={tableCols} filteredPlayers={filteredPlayers} />
+        <Exporter
+          tableCols={tableCols}
+          filteredPlayers={filteredPlayers}
+          activeTab={activeTab}
+        />
+        <div className="flex flex-col flex-nowrap gap-y-2">
+          {supportMeArray.map((el, id) => (
+            <a key={id} title={`Support me on ${el.name}`} href={el.link} target="_blank">
+              <img src={el.image} className="w-10" />
+            </a>
+          ))}
+        </div>
       </div>
 
       <div className="overflow-auto">

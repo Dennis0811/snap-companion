@@ -1,5 +1,6 @@
 import React, { Dispatch, SetStateAction, useState } from "react";
 import { JsonType } from "../Types";
+import { CircleX } from "lucide-react";
 
 const FileInput = ({
   setFile,
@@ -90,25 +91,13 @@ const FileInput = ({
         {/* Error message */}
         {errorMessage && (
           <div role="alert" className="alert alert-error mb-3">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 shrink-0 stroke-current"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
+            <CircleX />
             <span>{errorMessage}</span>
           </div>
         )}
 
         <h2 className="text-2xl mb-4">
-          Upload your <span className="font-mono">ClanState.json</span> file
+          Upload your <span className="font-mono">ClanState.json</span>
         </h2>
         <p>You should be able to find it in this directory:</p>
         <p className="font-mono text-sm">
@@ -130,7 +119,7 @@ const FileInput = ({
           />
           <div className="text-center">
             <p className="text-lg">Drag & Drop or Click to Upload</p>
-            <p className="text-sm">Accepted file: ClanState.json (max 1MB)</p>
+            <p className="text-sm">Accepted file: ClanState.json (max. 1MB)</p>
           </div>
         </div>
       </div>
