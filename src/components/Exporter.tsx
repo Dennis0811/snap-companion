@@ -39,7 +39,7 @@ const Exporter = ({
           title="Download your Leaderboard file."
         >
           <div>Export to Excel</div>
-          <Download />
+          <Download className="w-5" />
         </div>
       </button>
     </>

@@ -1,4 +1,4 @@
-import { ArrowUpDown, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowUpDown, ChevronDown, ChevronUp, Upload } from "lucide-react";
 import { useState } from "react";
 import { JsonType, MemberType, SortedMember, SupportMe } from "../Types";
 import Exporter from "./Exporter";
@@ -115,11 +115,29 @@ const Table = ({
         />
         <div className="flex flex-col flex-nowrap gap-y-2">
           {supportMeArray.map((el, id) => (
-            <a key={id} title={`Support me on ${el.name}`} href={el.link} target="_blank">
-              <img src={el.image} className="w-10" />
+            <a
+              key={id}
+              title={`Support me on ${el.name}`}
+              href={el.link}
+              target="_blank"
+            >
+              <img src={el.image} className="w-14" />
             </a>
           ))}
         </div>
+        <button
+          className="btn btn-primary ml-4"
+          title="Load another ClanState.json file."
+          onClick={() => location.reload()}
+        >
+          <div
+            className="flex flex-col items-center justify-center px-2 py-2"
+            title="Load another ClanState.json file."
+          >
+            <div>Load ClanState.json</div>
+            <Upload className="w-5" />
+          </div>
+        </button>
       </div>
 
       <div className="overflow-auto">

@@ -38,10 +38,16 @@ function App() {
       const members = jsonData.ServerState.Members;
       if (members.length > 0) {
         const longestTimePeriodList = getLongestTimePeriodList(members);
-        const timePeriodKeys = longestTimePeriodList.map(
-          (tp: TimePeriod) => tp.Key
-        );
-        setTabs(timePeriodKeys.reverse());
+        let timePeriodKeys = longestTimePeriodList
+          .map((tp: TimePeriod) => tp.Key)
+          .reverse();
+
+        //   Limit the tabs to the latest 5
+        if (timePeriodKeys.length > 5) {
+          timePeriodKeys = timePeriodKeys.slice(0, 5);
+        }
+
+        setTabs(timePeriodKeys);
 
         // Set the latest time period as the active tab by default
         if (timePeriodKeys.length > 0) {
@@ -52,55 +58,77 @@ function App() {
   }, [jsonData]);
 
   return (
-    <main className="h-screen">
-      {!file ? (
-        <div className="flex flex-col h-full w-full justify-center items-center">
-          <FileInput setFile={setFile} setJsonData={setJsonData} />
-          <div className="flex flex-row py-5 gap-x-5">
-            {supportMeArray.map((el, id) => (
-              <a
-                key={id}
-                title={`Support me on ${el.name}`}
-                href={el.link}
-                target="_blank"
-              >
-                <img src={el.image} className="w-12" />
-              </a>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="flex flex-col flex-nowrap h-full w-full max-w-4xl mx-auto pt-3">
-          {/* Tabs */}
-          <ul className="menu menu-vertical lg:menu-horizontal bg-base-200 rounded-box items-center justify-evenly">
-            {tabs.map((tabKey, index) => (
-              <li key={tabKey}>
+    <div className="flex flex-col h-screen">
+      <main className="h-screen m-auto">
+        {!file ? (
+          <div className="flex flex-col h-full w-full justify-center items-center">
+            <FileInput setFile={setFile} setJsonData={setJsonData} />
+            <div className="flex flex-row py-5 gap-x-5">
+              {supportMeArray.map((el, id) => (
                 <a
-                  className={`flex flex-col flex-nowrap ${
-                    activeTab === tabKey ? "active" : ""
-                  }`}
-                  onClick={() => setActiveTab(tabKey)}
+                  key={id}
+                  title={`Support me on ${el.name}`}
+                  href={el.link}
+                  target="_blank"
                 >
-                  <span>{`Week ${index + 1}`}</span>
-                  <span className="text-lg">{`${moment(tabKey).format(
-                    "DD. MMM YY"
-                  )}`}</span>
+                  <img src={el.image} className="w-12" />
                 </a>
-              </li>
-            ))}
-          </ul>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col flex-nowrap h-full w-full max-w-4xl mx-auto pt-3">
+            {/* Tabs */}
+            <ul className="menu menu-vertical lg:menu-horizontal bg-base-200 rounded-box items-center justify-evenly">
+              {tabs.map((tabKey, index) => (
+                <li key={tabKey}>
+                  <a
+                    className={`flex flex-col flex-nowrap ${
+                      activeTab === tabKey ? "active" : ""
+                    }`}
+                    onClick={() => setActiveTab(tabKey)}
+                  >
+                    <span>{`Week ${index + 1}`}</span>
+                    <span className="text-lg">{`${moment(tabKey).format(
+                      "DD. MMM YY"
+                    )}`}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
 
-          {/* Pass the JSON data to the Table component */}
-          {jsonData !== null && activeTab !== null && (
-            <Table
-              jsonData={jsonData as JsonType}
-              activeTab={activeTab}
-              supportMeArray={supportMeArray}
-            />
-          )}
-        </div>
-      )}
-    </main>
+            {/* Pass the JSON data to the Table component */}
+            {jsonData !== null && activeTab !== null && (
+              <Table
+                jsonData={jsonData as JsonType}
+                activeTab={activeTab}
+                supportMeArray={supportMeArray}
+              />
+            )}
+          </div>
+        )}
+      </main>
+
+      <footer className="footer footer-center bg-base-300 text-base-content p-4 mt-10 flex flex-row justify-between">
+        <aside>
+          <p>Copyright © {new Date().getFullYear()} - All rights reserved</p>
+          <p>
+            Snap Companion is not affiliated or associated with any other
+            company.
+          </p>
+          <p>
+            All logos, trademarks, and trade names used herein are the property
+            of their respective owners.
+          </p>
+        </aside>
+        <aside>
+          <p>If you have any suggestions or just want to tell me something,</p>
+          <a href="mailto:marvelsnapcompanion@gmail.com" className="link">
+            contact here me via E-Mail.
+          </a>
+        </aside>
+      </footer>
+    </div>
   );
 }
 

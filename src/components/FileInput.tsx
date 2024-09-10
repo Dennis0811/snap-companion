@@ -1,6 +1,6 @@
+import { CircleX } from "lucide-react";
 import React, { Dispatch, SetStateAction, useState } from "react";
 import { JsonType } from "../Types";
-import { CircleX } from "lucide-react";
 
 const FileInput = ({
   setFile,
@@ -97,7 +97,7 @@ const FileInput = ({
         )}
 
         <h2 className="text-2xl mb-4">
-          Upload your <span className="font-mono">ClanState.json</span>
+          Load your <span className="font-mono">ClanState.json</span>
         </h2>
         <p>You should be able to find it in this directory:</p>
         <p className="font-mono text-sm">
