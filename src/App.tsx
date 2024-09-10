@@ -1,9 +1,10 @@
+import moment from "moment";
 import { useEffect, useState } from "react";
+import KoFiLogo from "./assets/Ko-fi_Logo_white_stroke@2x.png";
+import PatreonLogo from "./assets/PATREON_SYMBOL_1_WHITE_RGB.svg";
 import FileInput from "./components/FileInput";
 import Table from "./components/Table";
 import { JsonType, MemberType, TimePeriod } from "./Types";
-import KoFiLogo from "./assets/Ko-fi_Logo_white_stroke@2x.png";
-import PatreonLogo from "./assets/PATREON_SYMBOL_1_WHITE_RGB.svg";
 
 function App() {
   const supportMeArray = [
@@ -81,7 +82,9 @@ function App() {
                   onClick={() => setActiveTab(tabKey)}
                 >
                   <span>{`Week ${index + 1}`}</span>
-                  <span className="text-lg">{tabKey}</span>
+                  <span className="text-lg">{`${moment(tabKey).format(
+                    "DD. MMM YY"
+                  )}`}</span>
                 </a>
               </li>
             ))}
