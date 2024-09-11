@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { Dispatch, SetStateAction } from "react";
 
 const Searchbar = ({
@@ -22,7 +22,14 @@ const Searchbar = ({
           value={searchQuery}
           onChange={handleSearchChange}
         />
-        <Search className="w-4" />
+        {searchQuery === "" ? (
+          <Search className="w-4" />
+        ) : (
+          <X
+            className="w-4 hover:cursor-pointer"
+            onClick={() => setSearchQuery("")}
+          />
+        )}
       </label>
     </>
   );
