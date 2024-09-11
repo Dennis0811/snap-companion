@@ -169,7 +169,9 @@ const Table = ({
                 return (
                   <th key={index}>
                     <div
-                      className="cursor-pointer flex gap-x-5 flex-row justify-center uppercase"
+                      className={`flex gap-x-5 flex-row justify-center uppercase ${
+                        columnKey !== null ? "cursor-pointer" : "cursor-default"
+                      }`}
                       onClick={() => columnKey && handleSort(columnKey)}
                     >
                       {col} {columnKey && getSortIcon(columnKey)}
