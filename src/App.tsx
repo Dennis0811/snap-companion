@@ -123,7 +123,7 @@ function App() {
         </aside>
         <aside>
           <p>If you have any suggestions or just want to tell me something,</p>
-          <a href="mailto:marvelsnapcompanion@gmail.com" className="link">
+          <a href="mailto:meckestv@gmail.com" className="link">
             contact here me via E-Mail.
           </a>
         </aside>
