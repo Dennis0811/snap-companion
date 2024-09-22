@@ -1,7 +1,15 @@
 import { ArrowUpDown, ChevronDown, ChevronUp, Upload } from "lucide-react";
+import moment from "moment";
 import { useState } from "react";
-import { JsonType, MemberType, SortedMember, SupportMe } from "../Types";
+import {
+  AllianceType,
+  JsonType,
+  MemberType,
+  SortedMember,
+  SupportMe,
+} from "../Types";
 import Exporter from "./Exporter";
+import PlayerSummaryModal from "./PlayerSummaryModal";
 import Searchbar from "./Searchbar";
 
 const Table = ({
@@ -22,6 +30,7 @@ const Table = ({
 
   const data: JsonType = jsonData;
   const players: MemberType[] = data.ServerState.Members;
+  const alliance: AllianceType = data.ServerState.State.Identity;
 
   const playersWithIdx: SortedMember[] = players
     .filter((player) =>
@@ -32,6 +41,9 @@ const Table = ({
     .map((player) => {
       const playerName = player.PlayerInfo.Name;
       const pointsList = player.TimePeriodState.TimePeriodList;
+      const timeCreated = moment(player.PlayerInfo.TimeCreated).format(
+        "DD. MMM YY"
+      );
 
       // Find the TimePeriod that matches the activeTab
       const matchedTimePeriod = pointsList.find(
@@ -48,6 +60,7 @@ const Table = ({
         cubePoints,
         bountyPoints,
         totalPoints,
+        timeCreated,
       };
     })
     .sort((a, b) => b.totalPoints - a.totalPoints)
@@ -183,15 +196,30 @@ const Table = ({
           </thead>
 
           <tbody>
-            {filteredPlayers.map((player: SortedMember, index: number) => (
-              <tr key={index}>
-                <td>{player.idx}</td>
-                <td>{player.name}</td>
-                <td className="text-right">{player.cubePoints}</td>
-                <td className="text-right">{player.bountyPoints}</td>
-                <td className="text-right">{player.totalPoints}</td>
-              </tr>
-            ))}
+            {filteredPlayers
+              .filter((player) => player.totalPoints > 0)
+              .map((player: SortedMember, index: number) => (
+                <tr key={index}>
+                  <td>{player.idx}</td>
+                  <td>
+                    <PlayerSummaryModal
+                      tableCols={tableCols}
+                      data={players}
+                      allianceData={alliance}
+                      currentPlayer={player}
+                    />
+                  </td>
+                  <td className="text-right">
+                    {Intl.NumberFormat().format(player.cubePoints)}
+                  </td>
+                  <td className="text-right">
+                    {Intl.NumberFormat().format(player.bountyPoints)}
+                  </td>
+                  <td className="text-right">
+                    {Intl.NumberFormat().format(player.totalPoints)}
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>

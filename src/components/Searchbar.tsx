@@ -25,10 +25,12 @@ const Searchbar = ({
         {searchQuery === "" ? (
           <Search className="w-4" />
         ) : (
-          <X
-            className="w-4 hover:cursor-pointer"
+          <button
+            className="btn btn-circle btn-ghost btn-sm w-4"
             onClick={() => setSearchQuery("")}
-          />
+          >
+            <X />
+          </button>
         )}
       </label>
     </>
